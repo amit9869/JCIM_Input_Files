@@ -41,12 +41,12 @@ switching           on
 
 # You have some freedom choosing the cutoff
 
-cutoff              16. ;# may use smaller, maybe 10., with PME
-switchdist          15. ;# cutoff - 2.
+cutoff              12. ;# may use smaller, maybe 10., with PME
+switchdist          10. ;# cutoff - 2.
 
 # Promise that atom won't move more than 2A in a cycle
 
-pairlistdist        18.  ;# cutoff + 2.
+pairlistdist        14.  ;# cutoff + 2.
 stepspercycle       100   ;# redo pairlists every ten steps
 
 # Integrator Parameters
