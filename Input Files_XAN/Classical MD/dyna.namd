@@ -75,11 +75,6 @@ wrapAll            on
 PME	       	     	on
 PMEGridSpacing      1.0
 
-constraints     on
-consref         ../ionized1.pdb
-conskfile       ../ionized1.reg
-conskcol        B
-
 
 # Constant Temperature Control	 
 langevin        	on   ;#do langevin dynamics
