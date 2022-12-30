@@ -1,0 +1,112 @@
+ ###########################################################
+#Slight Minimization and Ist Equilibration with slow heating 
+#############################################################
+
+## ADJUSTABLE PARAMETERS (SEE margin, temp, regidbonds)
+########################################################### 
+margin             1.0
+structure          ../ionized1.psf
+coordinates        ../ionized1.pdb
+set outputname	   equil
+
+#set temperature   300  ;# target temperature used several times below
+set temp_step      15 
+firsttimestep      0
+
+##############################################
+## SIMULATION PARAMETERS
+##############################################
+
+# Force-Field Parameters
+
+paraTypeCharmm	    on
+#parameters        ../par_all36_prot.prm
+parameters       ../par_all36_na_ion_wat.prm 
+
+temperature         $temp_step      ;# initialize velocities randomly
+
+exclude             scaled1-4
+1-4scaling          1.0
+switching           on
+
+# You have some freedom choosing the cutoff
+
+cutoff              16. ;# may use smaller, maybe 10., with PME
+switchdist          15. ;# cutoff - 2.
+
+# Promise that atom won't move more than 2A in a cycle
+
+pairlistdist        18.  ;# cutoff + 2.
+stepspercycle       10   ;# redo pairlists every ten steps
+
+# Integrator Parameters
+
+timestep            0.5  ;# 0.5fs/step
+nonbondedFreq       1    ;# nonbonded forces every step
+fullElectFrequency  2    ;# PME only every other step
+
+#Harmonic restraint parameters
+rigidBonds      water 
+rigidTolerance  1.0e-8
+
+constraints     on
+consref         ../ionized1.pdb
+conskfile       ../ionized1.reg
+conskcol        B
+
+
+# periodic cell
+cellBasisVector1 90.0 0 0
+cellBasisVector2 0 50.0 0
+cellBasisVector3 0 0 70.0
+cellOrigin   -0.051175136119127274 0.08040259033441544 -0.10509062558412552
+wrapAll            on
+
+# full electrostatics
+#PME             on
+#PMEGridSizeX    90
+#PMEGridSizeY    90
+#PMEGridSizeZ    90
+ PME                     on
+ PMEGridSpacing            1.0
+#
+# temp rescaling actually brings the temp down.
+# perform incremental heating
+
+reassignTemp        $temp_step ;# starting temp
+reassignIncr        $temp_step ;# temp increment
+reassignHold        300 ;# final temp
+reassignFreq        100 ;# num timesteps to temp incr.
+
+# Constant Temperature Control	 
+langevin        	on   ;#do langevin dynamics
+langevinDamping        	5  ;#damping coefficient (gamma) of 5/ps
+langevinTemp    	$temp_step
+langevinHydrogen	off  ;# don't couple langevin bath to hydrogens
+
+# pressure control
+useGroupPressure      yes           ;# needed for rigid bonds
+useFlexibleCell       no            ;# no for water box, yes for membrane
+useConstantArea       no            ;# no for water box, maybe for membrane
+langevinPiston        on
+langevinPistonTarget  1.01325       ;# pressure in bar -> 1 atm
+langevinPistonPeriod  200.          ;# oscillation period around 200 fs
+langevinPistonDecay   100.          ;# oscillation decay time of 100 fs
+langevinPistonTemp    300           ;# coupled to heat bath
+
+#output files
+binaryoutput        no
+outputName          $outputname     ;# base name for output from this run
+restartfreq         500             ;# 500 steps = every 1ps
+dcdfreq             500
+xstFreq             500
+outputEnergies      100             ;# 100 steps = every 0.2 ps
+#outputTiming       1000             ;# shows time per step and time to completion
+
+##########################################
+## EXECUTION SCRIPT
+##########################################
+
+minimize            2000            ;# lower potential energy for 2000 steps
+reinitvels          $temp_step    ;# since minimization zeros velocities
+run 20000 ;# 10ps
