@@ -49,11 +49,6 @@ fullElectFrequency  2    ;# PME only every other step
 rigidBonds      water 
 rigidTolerance  1.0e-8
 
-constraints     on
-consref         ../ionized1.pdb
-conskfile       ../ionized1.reg
-conskcol        B
-
 
 # periodic cell
 cellBasisVector1 90.0 0 0
